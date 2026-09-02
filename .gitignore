@@ -6,3 +6,8 @@ audit/*.jsonl
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Planning/design docs kept locally only, not tracked in git
+/docs/
+/files/
+/files.zip
