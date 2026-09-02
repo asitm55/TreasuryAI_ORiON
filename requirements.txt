@@ -1,0 +1,7 @@
+anthropic>=0.40.0        # LLM API
+pydantic>=2.0            # Data models
+pyyaml>=6.0               # Scenario files
+rich>=13.0                # CLI formatting
+pytest>=8.0                # Test framework
+pytest-cov>=5.0            # Coverage reporting
+python-dotenv>=1.0         # .env file loading
