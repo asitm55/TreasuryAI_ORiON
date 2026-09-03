@@ -17,4 +17,6 @@ ExactDecimal = Annotated[Decimal, PlainSerializer(lambda v: str(v), return_type=
 
 
 class TreasuryBaseModel(BaseModel):
+    """Base class for every Pydantic model in the project (ADR-002)."""
+
     model_config = ConfigDict(validate_assignment=True, str_strip_whitespace=True)

@@ -37,6 +37,7 @@ DEMO_STEPS: list[tuple[str, str, str | None]] = [
 
 
 def run_demo(scenario: str, console: Console, llm_client_factory: Callable[[str], Any] | None = None) -> TreasurySession:
+    """Run all 5 DEMO_STEPS in sequence against one scenario, auto-declining any approval gate."""
     session = TreasurySession(scenario=scenario, llm_client_factory=llm_client_factory)
     console.print(cli.BANNER, style="bold")
     console.print(f"Scenario: [bold]{scenario}[/bold] | Session: {session.session_id}\n")
@@ -52,12 +53,14 @@ def run_demo(scenario: str, console: Console, llm_client_factory: Callable[[str]
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Argument parser for the --scenario flag."""
     parser = argparse.ArgumentParser(prog="scripts/demo.py", description="Run every TreasuryAI workflow against one scenario.")
     parser.add_argument("--scenario", default="base_case", help="Synthetic data scenario to load (default: base_case)")
     return parser
 
 
 def main() -> None:
+    """Script entry point: parse --scenario and run the full demo."""
     args = build_parser().parse_args()
     console = Console()
     try:

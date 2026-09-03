@@ -40,6 +40,8 @@ def _empty_working_capital() -> WorkingCapitalMetrics:
 
 
 class CoraAgent(BaseAgent):
+    """Cash Operations specialist: near-term cash forecasting, working capital, sweeps."""
+
     agent_id = "CORA"
     display_name = "Cora — Cash Operations"
     system_prompt = CORA_SYSTEM_PROMPT

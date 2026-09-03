@@ -72,12 +72,16 @@ def to_jsonable(value: Any) -> Any:
 
 @dataclass
 class ToolCallOutcome:
+    """Result of dispatching one tool call: either a result or an error, never both."""
+
     call: ToolCallRequest
     result: Any = None
     error: str | None = None
 
 
 class BaseAgent(ABC):
+    """Shared agentic run() loop every specialist agent (ATLAS, CORA, TARA, FIRA, ARIA) extends."""
+
     agent_id: str
     display_name: str
     system_prompt: str
@@ -99,9 +103,13 @@ class BaseAgent(ABC):
         self.registry = registry
 
     def tool_schemas(self) -> list[dict[str, Any]]:
+        """Anthropic tool-use schemas for this agent's registered tool_names."""
         return [self.registry.get_tool_schema(name) for name in self.tool_names]
 
     def run(self, request: AgentRequest) -> AgentResponse:
+        """Run the full agentic loop for one request: send, dispatch tool calls,
+        iterate until end_turn, then build and log the typed response.
+        """
         tool_results: dict[str, list[Any]] = {}
         context = self._build_context(request, tool_results)
         initial_content = f"{context}\n\n{request.user_query}" if context else request.user_query

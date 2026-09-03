@@ -75,6 +75,7 @@ class TreasurySession:
         )
 
     def make_request(self, user_query: str) -> AgentRequest:
+        """Build a fresh AgentRequest scoped to this session and its scenario."""
         return AgentRequest(
             session_id=self.session_id,
             request_id=str(uuid.uuid4()),
@@ -166,6 +167,7 @@ def _utcnow() -> datetime:
 
 
 def cmd_brief(session: TreasurySession, console: Console) -> OrionResponse:
+    """Daily Treasury Briefing workflow: ORION routes to ATLAS, CORA, and FIRA."""
     console.print("[bold blue][ORION][/bold blue] Generating daily treasury briefing...")
     response = session.orion.run(session.make_request("Give me the daily treasury briefing"))
     _render_orion_response(console, response)
@@ -173,6 +175,7 @@ def cmd_brief(session: TreasurySession, console: Console) -> OrionResponse:
 
 
 def cmd_stress_test(session: TreasurySession, console: Console) -> OrionResponse:
+    """Liquidity Stress Test workflow: ORION routes to ATLAS and TARA."""
     console.print("[bold blue][ORION][/bold blue] Running a liquidity stress test...")
     response = session.orion.run(session.make_request("Run a liquidity stress test"))
     _render_orion_response(console, response)
@@ -180,6 +183,7 @@ def cmd_stress_test(session: TreasurySession, console: Console) -> OrionResponse
 
 
 def cmd_risk_review(session: TreasurySession, console: Console) -> OrionResponse:
+    """FX Risk Review workflow: ORION routes to TARA and FIRA."""
     console.print("[bold blue][ORION][/bold blue] Running an FX and treasury risk review...")
     response = session.orion.run(session.make_request("Run an FX and treasury risk review"))
     _render_orion_response(console, response)
@@ -187,6 +191,7 @@ def cmd_risk_review(session: TreasurySession, console: Console) -> OrionResponse
 
 
 def cmd_alerts(session: TreasurySession, console: Console) -> AriaResponse:
+    """Evaluate alert rules by calling ARIA directly (ORION must not invoke ARIA)."""
     console.print("[red][ARIA][/red] Evaluating alert rules against current metrics...")
     response = session.aria.run(session.make_request("Evaluate all alert rules against current metrics"))
     _render_aria_response(console, response)
@@ -194,6 +199,7 @@ def cmd_alerts(session: TreasurySession, console: Console) -> AriaResponse:
 
 
 def cmd_ask(session: TreasurySession, console: Console, question: str | None) -> OrionResponse | None:
+    """Ad-hoc Query workflow: ORION classifies intent and routes to the relevant specialist(s)."""
     if not question:
         console.print("[red]Usage: ask <question>[/red]")
         return None
@@ -213,6 +219,7 @@ _COMMANDS: dict[str, Callable[[TreasurySession, Console, str | None], AgentRespo
 
 
 def dispatch_command(session: TreasurySession, console: Console, command: str, argument: str | None, auto_decline_approval: bool = False) -> AgentResponse | None:
+    """Run one command against session and prompt for approval if it's pending."""
     if command not in _COMMANDS:
         raise KeyError(command)
     response = _COMMANDS[command](session, console, argument)
@@ -225,6 +232,7 @@ def dispatch_command(session: TreasurySession, console: Console, command: str, a
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Argument parser for both one-shot commands and the --scenario flag."""
     parser = argparse.ArgumentParser(
         prog="main.py",
         description=BANNER,
@@ -246,6 +254,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def run_interactive(scenario: str, console: Console) -> None:
+    """REPL: read a command per line, dispatch it, repeat until quit/exit/EOF."""
     session = TreasurySession(scenario=scenario)
     console.print(f"Scenario: [bold]{scenario}[/bold] | Session: {session.session_id}")
     console.print("Commands: brief, stress-test, risk-review, alerts, ask <question>, quit\n")
@@ -275,6 +284,7 @@ def run_interactive(scenario: str, console: Console) -> None:
 
 
 def run_one_shot(args: argparse.Namespace, console: Console) -> None:
+    """Build a session and run exactly one command, then exit."""
     if args.command == "quit":
         return
     session = TreasurySession(scenario=args.scenario)
@@ -284,6 +294,7 @@ def run_one_shot(args: argparse.Namespace, console: Console) -> None:
 
 
 def main() -> None:
+    """CLI entry point: parse args, then run interactively or one-shot."""
     parser = build_parser()
     args = parser.parse_args()
 

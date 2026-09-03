@@ -14,6 +14,8 @@ from models.audit import AuditEntry
 
 
 class AuditLogger:
+    """Append-only JSONL writer/reader for one session's audit trail."""
+
     def __init__(self, session_id: str, audit_dir: str | os.PathLike = "./audit"):
         self.session_id = session_id
         self.audit_dir = Path(audit_dir)
@@ -24,6 +26,7 @@ class AuditLogger:
         self._lock = threading.Lock()
 
     def log(self, entry: AuditEntry) -> None:
+        """Append entry to this session's log file, flushed and fsynced immediately."""
         if entry.session_id != self.session_id:
             raise ValueError(
                 f"AuditEntry.session_id '{entry.session_id}' does not match "

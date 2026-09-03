@@ -34,6 +34,8 @@ _EMPTY_BENCHMARK = BenchmarkResult(
 
 
 class FiraAgent(BaseAgent):
+    """Financial Intelligence specialist: KPI scoring, trends, benchmarking, narrative."""
+
     agent_id = "FIRA"
     display_name = "Fira — Financial Intelligence"
     system_prompt = FIRA_SYSTEM_PROMPT

@@ -24,6 +24,8 @@ from models.financial import (
 
 
 class VarianceAnalysis(TreasuryBaseModel):
+    """Budget vs. actual variance for a single metric."""
+
     actual: ExactDecimal
     budget: ExactDecimal
     variance: ExactDecimal
@@ -32,6 +34,8 @@ class VarianceAnalysis(TreasuryBaseModel):
 
 
 class PeriodSummary(TreasuryBaseModel):
+    """Per-metric averages across every snapshot falling within a date window."""
+
     start: date
     end: date
     period_count: int

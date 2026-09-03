@@ -26,6 +26,8 @@ portfolio composition."""
 
 
 class AtlasAgent(BaseAgent):
+    """Treasury & Liquidity specialist: LCR/NSFR, liquidity gaps, and stress testing."""
+
     agent_id = "ATLAS"
     display_name = "Atlas — Treasury & Liquidity"
     system_prompt = ATLAS_SYSTEM_PROMPT

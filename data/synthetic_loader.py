@@ -43,6 +43,8 @@ DEFAULT_SCENARIOS_DIR = Path(__file__).parent / "scenarios"
 
 
 class ScenarioNotFoundError(FileNotFoundError):
+    """Raised when the requested scenario name has no matching YAML file."""
+
     def __init__(self, name: str, scenarios_dir: Path):
         available = sorted(p.stem for p in scenarios_dir.glob("*.yaml"))
         super().__init__(
@@ -55,16 +57,22 @@ class SyntheticDataError(ValueError):
 
 
 class FXDirection(str, Enum):
+    """Side of an FX forward/spot position."""
+
     LONG = "LONG"
     SHORT = "SHORT"
 
 
 class CashFlowDirection(str, Enum):
+    """Direction of one scheduled payment."""
+
     INFLOW = "INFLOW"
     OUTFLOW = "OUTFLOW"
 
 
 class InvestmentPosition(TreasuryBaseModel):
+    """One holding in the investment portfolio, as loaded from scenario data."""
+
     instrument_id: str
     entity: str
     instrument_type: str
@@ -78,6 +86,8 @@ class InvestmentPosition(TreasuryBaseModel):
 
 
 class FXBookEntry(TreasuryBaseModel):
+    """One forward/spot position in the FX book, as loaded from scenario data."""
+
     position_id: str
     entity: str
     currency_pair: CurrencyPair
@@ -89,6 +99,8 @@ class FXBookEntry(TreasuryBaseModel):
 
 
 class PaymentScheduleEntry(TreasuryBaseModel):
+    """One scheduled inflow or outflow, as loaded from scenario data."""
+
     entity: str
     date: date
     currency: CurrencyCode
@@ -99,6 +111,8 @@ class PaymentScheduleEntry(TreasuryBaseModel):
 
 
 class CounterpartyProfile(TreasuryBaseModel):
+    """A counterparty's static profile: rating, sector, and exposure limit."""
+
     counterparty_id: str
     name: str
     credit_rating: CreditRating
@@ -107,18 +121,24 @@ class CounterpartyProfile(TreasuryBaseModel):
 
 
 class RateCurvePoint(TreasuryBaseModel):
+    """One tenor point on one currency's yield curve."""
+
     currency: CurrencyCode
     tenor: str
     rate: ExactDecimal
 
 
 class FXShockAssumption(TreasuryBaseModel):
+    """A named FX shock (e.g. EUR/USD -8%) for run_scenario_analysis."""
+
     currency_pair: CurrencyPair
     shock_pct: ExactDecimal
 
 
 @dataclass(frozen=True)
 class TreasurySnapshot:
+    """Immutable, fully-loaded snapshot of one scenario's synthetic data."""
+
     scenario_name: str
     description: str
     entities: tuple[str, ...]
@@ -152,13 +172,17 @@ def _build_model_list(raw_items: list[dict[str, Any]], model: type[TreasuryBaseM
 
 
 class SyntheticDataLoader:
+    """Loads and validates scenario YAML files into TreasurySnapshots."""
+
     def __init__(self, scenarios_dir: str | os.PathLike | None = None):
         self.scenarios_dir = Path(scenarios_dir) if scenarios_dir else DEFAULT_SCENARIOS_DIR
 
     def list_scenarios(self) -> list[str]:
+        """Names of every scenario YAML file available (without the .yaml extension)."""
         return sorted(p.stem for p in self.scenarios_dir.glob("*.yaml"))
 
     def load_scenario(self, name: str) -> TreasurySnapshot:
+        """Load and validate one scenario's YAML file into a TreasurySnapshot."""
         path = self.scenarios_dir / f"{name}.yaml"
         if not path.exists():
             raise ScenarioNotFoundError(name, self.scenarios_dir)

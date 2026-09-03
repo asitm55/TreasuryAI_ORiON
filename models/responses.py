@@ -31,12 +31,16 @@ from models.financial import (
 
 
 class ResponseStatus(str, Enum):
+    """Outcome of one agent run: finished cleanly, needs a human decision, or failed."""
+
     COMPLETE = "COMPLETE"
     PENDING_APPROVAL = "PENDING_APPROVAL"
     ERROR = "ERROR"
 
 
 class Recommendation(TreasuryBaseModel):
+    """One narrative suggestion from an agent — never executed, only logged (ADR-006)."""
+
     action: str
     rationale: str
     estimated_impact: str
@@ -44,6 +48,8 @@ class Recommendation(TreasuryBaseModel):
 
 
 class AgentResponse(TreasuryBaseModel):
+    """Base contract every agent's output satisfies; specialists extend it with their own fields."""
+
     agent_id: str
     request_id: str
     status: ResponseStatus
@@ -52,6 +58,8 @@ class AgentResponse(TreasuryBaseModel):
 
 
 class AtlasResponse(AgentResponse):
+    """ATLAS's output: liquidity ratios, any gaps, and optional stress results."""
+
     liquidity_metrics: LiquidityMetrics
     coverage_ratios: CoverageRatios
     gaps_identified: list[LiquidityGap]
@@ -60,6 +68,8 @@ class AtlasResponse(AgentResponse):
 
 
 class CoraResponse(AgentResponse):
+    """CORA's output: cash position, forecast, working capital, and any anomalies."""
+
     net_cash_position: CashPosition
     forecast_30d: CashFlowForecast
     working_capital: WorkingCapitalMetrics
@@ -69,6 +79,8 @@ class CoraResponse(AgentResponse):
 
 
 class TaraResponse(AgentResponse):
+    """TARA's output: risk summary, FX exposures, VaR, rate sensitivity, and counterparty risk."""
+
     risk_summary: RiskSummary
     fx_exposures: list[FXExposure]
     var_metrics: VaRMetrics
@@ -79,6 +91,8 @@ class TaraResponse(AgentResponse):
 
 
 class FiraResponse(AgentResponse):
+    """FIRA's output: KPI scorecard, trends, benchmarking, and an executive narrative."""
+
     kpi_scorecard: KPIScorecard
     trend_insights: list[TrendInsight]
     benchmark_comparison: BenchmarkResult
@@ -87,6 +101,8 @@ class FiraResponse(AgentResponse):
 
 
 class AriaResponse(AgentResponse):
+    """ARIA's output: every alert raised this run, plus its triage referrals."""
+
     alerts: list[AlertEvent]
     critical_count: int
     high_count: int
@@ -94,6 +110,8 @@ class AriaResponse(AgentResponse):
 
 
 class OrionResponse(AgentResponse):
+    """ORION's synthesised output: which specialists ran, their summaries, and the final briefing."""
+
     session_id: str
     agents_invoked: list[str]
     specialist_summaries: dict[str, str]

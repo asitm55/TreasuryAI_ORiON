@@ -19,12 +19,16 @@ from models.financial import AlertEvent, AlertSeverity
 
 
 class ThresholdDirection(str, Enum):
+    """Which side of a threshold counts as a breach."""
+
     ABOVE = "ABOVE"  # breach when value > threshold
     BELOW = "BELOW"  # breach when value < threshold
 
 
 @dataclass(frozen=True)
 class AlertRule:
+    """One entry in the alert rule catalogue: a metric, its threshold, and severity."""
+
     rule_id: str
     metric: str
     threshold: Decimal
@@ -47,6 +51,8 @@ DEFAULT_ALERT_RULES: tuple[AlertRule, ...] = (
 
 
 class ThresholdResult(TreasuryBaseModel):
+    """Outcome of a single check_threshold call."""
+
     metric: str
     value: ExactDecimal
     threshold: ExactDecimal
@@ -55,6 +61,8 @@ class ThresholdResult(TreasuryBaseModel):
 
 
 class BreachMagnitude(TreasuryBaseModel):
+    """How far a value sits from its threshold, in absolute and relative terms."""
+
     absolute: ExactDecimal
     relative_pct: ExactDecimal
 

@@ -10,6 +10,8 @@ from models.base import TreasuryBaseModel
 
 
 class AgentRequest(TreasuryBaseModel):
+    """A single request to any agent: the query, its session, and which scenario to use."""
+
     session_id: str
     request_id: str
     user_query: str

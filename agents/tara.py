@@ -35,6 +35,8 @@ _ZERO_VAR_METRICS = VaRMetrics(confidence=Decimal("0.95"), horizon_days=1, var_1
 
 
 class TaraAgent(BaseAgent):
+    """Treasury Risk specialist: FX exposure, VaR, duration, counterparty risk."""
+
     agent_id = "TARA"
     display_name = "Tara — Treasury Risk"
     system_prompt = TARA_SYSTEM_PROMPT

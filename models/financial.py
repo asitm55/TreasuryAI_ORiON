@@ -22,6 +22,8 @@ CreditRating = Annotated[str, Field(pattern=r"^(AAA|AA|A|BBB|BB|B|CCC|CC|C|D)[+-
 
 
 class StressSeverity(str, Enum):
+    """How badly a stress-test outcome breaches its liquidity target."""
+
     LOW = "LOW"
     MEDIUM = "MEDIUM"
     HIGH = "HIGH"
@@ -29,12 +31,16 @@ class StressSeverity(str, Enum):
 
 
 class TrendDirection(str, Enum):
+    """Slope sign of a fitted trend line."""
+
     UP = "UP"
     DOWN = "DOWN"
     FLAT = "FLAT"
 
 
 class AlertSeverity(str, Enum):
+    """Priority of an alert-rule breach, from the rule catalogue in agent-specifications.md."""
+
     CRITICAL = "CRITICAL"
     HIGH = "HIGH"
     MEDIUM = "MEDIUM"
@@ -43,6 +49,8 @@ class AlertSeverity(str, Enum):
 
 
 class CashPosition(TreasuryBaseModel):
+    """A single account's cash balance in one currency, as of a point in time."""
+
     currency: CurrencyCode
     amount: ExactDecimal
     account_id: str
@@ -50,6 +58,8 @@ class CashPosition(TreasuryBaseModel):
 
 
 class CashFlowForecast(TreasuryBaseModel):
+    """A rolling cash flow forecast: parallel per-period inflow/outflow/net series."""
+
     entity: str
     periods: list[date]
     inflows: list[ExactDecimal]
@@ -65,6 +75,8 @@ class CashFlowForecast(TreasuryBaseModel):
 
 
 class LiquidityMetrics(TreasuryBaseModel):
+    """LCR/NSFR ratios alongside the HQLA and outflow figures behind them."""
+
     lcr: ExactDecimal = Field(ge=0)
     nsfr: ExactDecimal = Field(ge=0)
     hqla: ExactDecimal = Field(ge=0)
@@ -72,6 +84,8 @@ class LiquidityMetrics(TreasuryBaseModel):
 
 
 class CoverageRatios(TreasuryBaseModel):
+    """LCR/NSFR ratios plus whether each meets the Basel III 100% minimum."""
+
     lcr_ratio: ExactDecimal = Field(ge=0)
     nsfr_ratio: ExactDecimal = Field(ge=0)
     lcr_compliant: bool
@@ -79,12 +93,16 @@ class CoverageRatios(TreasuryBaseModel):
 
 
 class LiquidityGap(TreasuryBaseModel):
+    """Net cash flow gap for one tenor bucket, plus the running cumulative gap."""
+
     tenor_bucket: str
     gap_amount: ExactDecimal
     cumulative_gap: ExactDecimal
 
 
 class FXExposure(TreasuryBaseModel):
+    """Gross long/short and net exposure for one currency pair, plus its hedge ratio."""
+
     currency_pair: CurrencyPair
     gross_long: ExactDecimal = Field(ge=0)
     gross_short: ExactDecimal = Field(ge=0)
@@ -93,6 +111,8 @@ class FXExposure(TreasuryBaseModel):
 
 
 class VaRMetrics(TreasuryBaseModel):
+    """Historical-simulation Value-at-Risk at 1-day and 10-day horizons."""
+
     confidence: ExactDecimal = Field(gt=0, lt=1)
     horizon_days: int = Field(gt=0)
     var_1d: ExactDecimal = Field(ge=0)
@@ -101,12 +121,16 @@ class VaRMetrics(TreasuryBaseModel):
 
 
 class RateSensitivity(TreasuryBaseModel):
+    """Portfolio interest-rate sensitivity: DV01, duration, and a parallel-shift P&L impact."""
+
     dv01: ExactDecimal
     modified_duration: ExactDecimal
     parallel_shift_impact: ExactDecimal
 
 
 class CounterpartyRisk(TreasuryBaseModel):
+    """Exposure to one counterparty, optionally broken out by currency."""
+
     counterparty_id: str
     gross_exposure: ExactDecimal = Field(ge=0)
     net_exposure: ExactDecimal
@@ -118,12 +142,16 @@ class CounterpartyRisk(TreasuryBaseModel):
 
 
 class RiskSummary(TreasuryBaseModel):
+    """TARA's top-level risk snapshot: total FX exposure, 1-day VaR, and the biggest named risks."""
+
     total_fx_exposure: ExactDecimal = Field(ge=0)
     var_1d: ExactDecimal = Field(ge=0)
     top_risks: list[str]
 
 
 class WorkingCapitalMetrics(TreasuryBaseModel):
+    """DSO, DPO, cash conversion cycle, and days cash on hand."""
+
     dso: ExactDecimal = Field(ge=0)
     dpo: ExactDecimal = Field(ge=0)
     ccc: ExactDecimal
@@ -131,6 +159,8 @@ class WorkingCapitalMetrics(TreasuryBaseModel):
 
 
 class KPIScore(TreasuryBaseModel):
+    """One metric's value against its target, with the resulting variance."""
+
     value: ExactDecimal
     target: ExactDecimal
     variance_pct: ExactDecimal
@@ -138,10 +168,14 @@ class KPIScore(TreasuryBaseModel):
 
 
 class KPIScorecard(TreasuryBaseModel):
+    """A named set of KPIScores, keyed by metric name."""
+
     metrics: dict[str, KPIScore]
 
 
 class StressTestResult(TreasuryBaseModel):
+    """Post-stress LCR, any HQLA shortfall, and the resulting severity."""
+
     scenario_name: str
     lcr_post_stress: ExactDecimal = Field(ge=0)
     shortfall: ExactDecimal = Field(ge=0)
@@ -149,6 +183,8 @@ class StressTestResult(TreasuryBaseModel):
 
 
 class CashAnomaly(TreasuryBaseModel):
+    """One flagged statistical outlier in a cash flow time series."""
+
     entity: str
     as_of: date
     expected_amount: ExactDecimal
@@ -158,6 +194,8 @@ class CashAnomaly(TreasuryBaseModel):
 
 
 class SweepOpportunity(TreasuryBaseModel):
+    """A suggested transfer of idle balance from one account to another."""
+
     from_account_id: str
     to_account_id: str
     currency: CurrencyCode
@@ -166,12 +204,16 @@ class SweepOpportunity(TreasuryBaseModel):
 
 
 class ScenarioResult(TreasuryBaseModel):
+    """P&L impact of applying one named shock scenario."""
+
     scenario_name: str
     pnl_impact: ExactDecimal
     description: str
 
 
 class TrendInsight(TreasuryBaseModel):
+    """Fitted direction and magnitude of a metric's trend over time."""
+
     metric_name: str
     direction: TrendDirection
     magnitude: ExactDecimal
@@ -179,6 +221,8 @@ class TrendInsight(TreasuryBaseModel):
 
 
 class BenchmarkResult(TreasuryBaseModel):
+    """One metric compared against a synthetic peer set: median and percentile rank."""
+
     metric_name: str
     entity_value: ExactDecimal
     peer_median: ExactDecimal
@@ -187,6 +231,8 @@ class BenchmarkResult(TreasuryBaseModel):
 
 
 class PriorityIssue(TreasuryBaseModel):
+    """One open issue, weighted and ranked by severity, with a recommended owner."""
+
     issue: str
     category: str
     severity_score: ExactDecimal = Field(ge=0, le=100)
@@ -194,6 +240,8 @@ class PriorityIssue(TreasuryBaseModel):
 
 
 class AlertEvent(TreasuryBaseModel):
+    """One alert-rule breach: the rule, the metric, and how far past threshold it is."""
+
     rule_id: str
     metric: str
     threshold: ExactDecimal
@@ -205,6 +253,8 @@ class AlertEvent(TreasuryBaseModel):
 
 
 class TriageRequest(TreasuryBaseModel):
+    """ARIA's referral of one alert to the specialist best placed to handle it."""
+
     alert: AlertEvent
     recommended_agent: str
     note: str

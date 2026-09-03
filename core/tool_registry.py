@@ -44,6 +44,8 @@ class ToolError(Exception):
 
 
 class ToolNotFoundError(KeyError):
+    """Raised when get_tool_schema/dispatch/get_tool is asked for an unregistered tool."""
+
     def __init__(self, name: str, available: list[str]):
         super().__init__(f"Tool '{name}' is not registered. Available: {sorted(available)}")
 
@@ -132,22 +134,28 @@ def _resolved_hints(func: Callable[..., Any]) -> dict[str, Any]:
 
 
 class ToolRegistry:
+    """Maps tool names to Python functions and their auto-generated schemas."""
+
     def __init__(self) -> None:
         self._tools: dict[str, Callable[..., Any]] = {}
 
     def register(self, func: Callable[..., Any], name: str | None = None) -> Callable[..., Any]:
+        """Register func under name (or its own __name__). Returns func unchanged."""
         self._tools[name or func.__name__] = func
         return func
 
     def list_tools(self) -> list[str]:
+        """Every registered tool name, sorted."""
         return sorted(self._tools.keys())
 
     def get_tool(self, name: str) -> Callable[..., Any]:
+        """The raw registered function for name."""
         if name not in self._tools:
             raise ToolNotFoundError(name, self.list_tools())
         return self._tools[name]
 
     def get_tool_schema(self, name: str) -> dict[str, Any]:
+        """Anthropic tool-use schema for name, generated from its type hints and docstring."""
         if name not in self._tools:
             raise ToolNotFoundError(name, self.list_tools())
         func = self._tools[name]
@@ -180,6 +188,7 @@ class ToolRegistry:
         }
 
     def dispatch(self, name: str, kwargs: dict[str, Any]) -> Any:
+        """Call the tool registered as name, coercing kwargs to its real types first."""
         if name not in self._tools:
             raise ToolNotFoundError(name, self.list_tools())
         func = self._tools[name]
@@ -196,13 +205,16 @@ default_registry = ToolRegistry()
 
 
 def tool(func: Callable[..., Any]) -> Callable[..., Any]:
+    """Decorator: register func with default_registry. Returns func unchanged."""
     default_registry.register(func)
     return func
 
 
 def get_tool_schema(name: str) -> dict[str, Any]:
+    """Convenience wrapper for default_registry.get_tool_schema."""
     return default_registry.get_tool_schema(name)
 
 
 def dispatch(name: str, kwargs: dict[str, Any]) -> Any:
+    """Convenience wrapper for default_registry.dispatch."""
     return default_registry.dispatch(name, kwargs)

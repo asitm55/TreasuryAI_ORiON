@@ -15,16 +15,22 @@ CONCENTRATION_THRESHOLD = Decimal("0.25")  # matches alert rule CP-001
 
 
 class LCRResult(TreasuryBaseModel):
+    """Basel III Liquidity Coverage Ratio and whether it meets the 100% minimum."""
+
     ratio: ExactDecimal
     compliant: bool
 
 
 class NSFRResult(TreasuryBaseModel):
+    """Net Stable Funding Ratio and whether it meets the 100% minimum."""
+
     ratio: ExactDecimal
     compliant: bool
 
 
 class InvestmentPortfolio(TreasuryBaseModel):
+    """The investment book plus per-currency totals (never blended - see below)."""
+
     positions: tuple[InvestmentPosition, ...]
     # Totals are broken out per currency, never blended: this project has no
     # FX spot-rate table, so summing e.g. USD and JPY face values into one
@@ -35,6 +41,8 @@ class InvestmentPortfolio(TreasuryBaseModel):
 
 
 class CurrencyConcentration(TreasuryBaseModel):
+    """Counterparty concentration within one currency's investment positions."""
+
     currency: CurrencyCode
     total_market_value: ExactDecimal
     by_counterparty_pct: dict[str, ExactDecimal]
@@ -44,8 +52,12 @@ class CurrencyConcentration(TreasuryBaseModel):
 
 
 class ConcentrationRisk(TreasuryBaseModel):
-    # Concentration is computed within each currency, not blended across
-    # them, for the same reason as InvestmentPortfolio above.
+    """Counterparty concentration across the investment book, broken out per currency.
+
+    Concentration is computed within each currency, not blended across
+    them, for the same reason as InvestmentPortfolio above.
+    """
+
     by_currency: tuple[CurrencyConcentration, ...]
     exceeds_threshold: bool
 

@@ -43,6 +43,8 @@ def _recommended_agent(metric: str) -> str:
 
 
 class AriaAgent(BaseAgent):
+    """Monitoring & Alerts agent: evaluates alert rules and triages breaches to a specialist."""
+
     agent_id = "ARIA"
     display_name = "Aria — Monitoring & Alerts"
     system_prompt = ARIA_SYSTEM_PROMPT

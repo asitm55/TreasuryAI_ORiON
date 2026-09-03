@@ -56,6 +56,8 @@ _INTENT_ROUTES: list[tuple[tuple[str, ...], list[str]]] = [
 
 
 class OrionAgent:
+    """Orchestrator: classifies intent, routes to specialists, synthesises a briefing."""
+
     agent_id = "ORION"
     display_name = "Orion — Orchestrator"
     system_prompt = ORION_SYSTEM_PROMPT
@@ -129,6 +131,7 @@ class OrionAgent:
         )
 
     def run(self, request: AgentRequest) -> OrionResponse:
+        """Classify intent, invoke the relevant specialists, and synthesise their findings."""
         agent_ids = self._classify_intent(request.user_query)
         responses = self._invoke_specialists(agent_ids, request)
         self.last_specialist_responses = responses

@@ -13,6 +13,8 @@ load_dotenv()
 
 @dataclass(frozen=True)
 class Settings:
+    """Environment-backed configuration, read once and cached via get_settings()."""
+
     anthropic_api_key: str | None
     model: str
     scenario: str
@@ -20,6 +22,7 @@ class Settings:
     log_level: str
 
     def require_api_key(self) -> str:
+        """The configured API key, or raise RuntimeError if none is set."""
         if not self.anthropic_api_key:
             raise RuntimeError(
                 "ANTHROPIC_API_KEY is not set. Copy .env.example to .env and set it."
@@ -28,6 +31,7 @@ class Settings:
 
     @classmethod
     def from_env(cls) -> "Settings":
+        """Build Settings from the current environment variables."""
         return cls(
             anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY"),
             model=os.environ.get("TREASURYAI_MODEL", "claude-sonnet-5"),
@@ -39,4 +43,5 @@ class Settings:
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
+    """The process-wide Settings singleton, built from the environment on first call."""
     return Settings.from_env()

@@ -24,6 +24,8 @@ from models.financial import CounterpartyRisk, FXExposure, RateSensitivity, Scen
 
 
 class DurationResult(TreasuryBaseModel):
+    """Present value, Macaulay/modified duration, and DV01 for a set of cash flows."""
+
     present_value: ExactDecimal
     macaulay_duration: ExactDecimal
     modified_duration: ExactDecimal
@@ -31,6 +33,8 @@ class DurationResult(TreasuryBaseModel):
 
 
 class HedgeEffectiveness(TreasuryBaseModel):
+    """Notional-ratio hedge effectiveness proxy (see module docstring)."""
+
     hedge_ratio: ExactDecimal
     effectiveness_score: ExactDecimal
     classification: str

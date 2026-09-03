@@ -5,6 +5,43 @@ deterministic Python financial tools with LLM-powered reasoning agents (ORION,
 ATLAS, CORA, TARA, FIRA, ARIA) to produce auditable, human-reviewable
 recommendations. All data is synthetic; there is no execution engine.
 
+## Architecture
+
+```mermaid
+flowchart TD
+    User(["Operator — CLI / demo script"]) --> ORION
+
+    ORION["ORION<br/>orchestrator: routes + synthesises"]
+
+    ORION -->|routes| ATLAS["ATLAS<br/>Treasury & Liquidity"]
+    ORION -->|routes| CORA["CORA<br/>Cash Operations"]
+    ORION -->|routes| TARA["TARA<br/>Treasury Risk"]
+    ORION -->|routes| FIRA["FIRA<br/>Financial Intelligence"]
+    ARIA["ARIA<br/>Monitoring & Alerts"] -.->|triage_alert| ORION
+
+    ATLAS --> Tools
+    CORA --> Tools
+    TARA --> Tools
+    FIRA --> Tools
+    ARIA --> Tools
+
+    Tools["tools/*.py<br/>deterministic Python calculations"] --> Snapshot["TreasurySnapshot<br/>synthetic scenario data"]
+
+    ATLAS -.-> Audit
+    CORA -.-> Audit
+    TARA -.-> Audit
+    FIRA -.-> Audit
+    ARIA -.-> Audit
+    ORION -.-> Audit["AuditLogger<br/>append-only JSONL"]
+```
+
+LLMs choose which tool to call and interpret the result; they never do the
+arithmetic themselves (ADR-001) — every number in a response traces back to
+a call in the audit log. ORION never invokes ARIA directly; ARIA reaches
+ORION the other way, via a triage request when it flags a CRITICAL/HIGH
+alert. See [phases/](phases/) for what was actually built, phase by phase,
+including every design decision and deviation from the original plan.
+
 ## Install
 
 ```bash
@@ -40,14 +77,14 @@ pytest tests/ --cov
 
 ## Project status
 
-Phases 0-7 complete (scaffolding, data models, synthetic data layer, all 32
-financial tools + tool registry, LLM client + audit logger, all five
-specialist agents, the ORION orchestrator, and the CLI + demo script). Only
-final polish/documentation (Phase 8) remains — see [phases/](phases/) for a
-per-phase writeup of what was built and why, and `pytest tests/ --cov` for
-current test coverage (335 tests, 99% project-wide — the only gap is two
-`if __name__ == "__main__":` guards exercised by subprocess tests but not
-tracked by in-process coverage).
+**All 8 implementation phases complete.** Scaffolding, data models, synthetic
+data layer, all 32 financial tools + tool registry, LLM client + audit
+logger, all five specialist agents, the ORION orchestrator, the CLI + demo
+script, and final documentation/coverage polish — see [phases/](phases/) for
+a per-phase writeup of what was built, every design decision, and every real
+bug found and fixed along the way. `pytest tests/ --cov` currently reports
+335 tests, 99% project-wide (the only gap is two `if __name__ == "__main__":`
+guards exercised by subprocess tests but not tracked by in-process coverage).
 
 ## Layout
 

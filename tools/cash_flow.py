@@ -25,6 +25,8 @@ REPORTING_CURRENCY = "USD"
 
 
 class PaymentPatternAnalysis(TreasuryBaseModel):
+    """Inflow/outflow timing and counterparty concentration for one currency."""
+
     currency: str
     total_inflows: ExactDecimal
     total_outflows: ExactDecimal
@@ -36,6 +38,8 @@ class PaymentPatternAnalysis(TreasuryBaseModel):
 
 
 class ForecastVariance(TreasuryBaseModel):
+    """Actual vs. forecast error over a matched-length series of periods."""
+
     mean_absolute_error: ExactDecimal
     mean_percentage_error: ExactDecimal
     total_actual: ExactDecimal

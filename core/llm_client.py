@@ -16,6 +16,8 @@ from core.config import get_settings
 
 @dataclass(frozen=True)
 class ToolCallRequest:
+    """One tool call the model asked to make: its id, tool name, and input."""
+
     id: str
     name: str
     input: dict[str, Any]
@@ -23,6 +25,8 @@ class ToolCallRequest:
 
 @dataclass(frozen=True)
 class LLMResponse:
+    """Normalised result of one LLM completion, real or mocked."""
+
     content: str
     stop_reason: str
     tool_calls: list[ToolCallRequest] = field(default_factory=list)
@@ -30,6 +34,8 @@ class LLMResponse:
 
 
 class LLMClientProtocol(Protocol):
+    """Structural type both LLMClient and MockLLMClient satisfy."""
+
     def complete(
         self,
         messages: list[dict[str, Any]],
@@ -54,6 +60,7 @@ class LLMClient:
         system: str | None = None,
         max_tokens: int = 1024,
     ) -> LLMResponse:
+        """Call the real Anthropic API and normalise its response into an LLMResponse."""
         kwargs: dict[str, Any] = {"model": self.model, "max_tokens": max_tokens, "messages": messages}
         if tools:
             kwargs["tools"] = tools
@@ -100,6 +107,7 @@ class MockLLMClient:
         system: str | None = None,
         max_tokens: int = 1024,
     ) -> LLMResponse:
+        """Return the next scripted LLMResponse, recording the call for inspection."""
         self.received_calls.append({"messages": messages, "tools": tools, "system": system, "max_tokens": max_tokens})
         if self._index >= len(self._responses):
             raise IndexError(
