@@ -38,12 +38,12 @@ pytest tests/ --cov
 
 ## Project status
 
-Phases 0-5 complete (scaffolding, data models, synthetic data layer, all 32
-financial tools + tool registry, LLM client + audit logger, and all five
-specialist agents — ATLAS, CORA, TARA, FIRA, ARIA). Only the ORION
-orchestrator and CLI/demo remain — see [phases/](phases/) for a per-phase
+Phases 0-6 complete (scaffolding, data models, synthetic data layer, all 32
+financial tools + tool registry, LLM client + audit logger, all five
+specialist agents, and the ORION orchestrator). Only the CLI/demo (Phase 7)
+and final polish (Phase 8) remain — see [phases/](phases/) for a per-phase
 writeup of what was built and why, and `pytest tests/ --cov` for current
-test coverage (273 tests, 100% project-wide).
+test coverage (300 tests, 100% project-wide).
 
 ## Layout
 

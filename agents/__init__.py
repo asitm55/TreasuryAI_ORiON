@@ -2,4 +2,4 @@
 with core.tool_registry.default_registry.
 """
 
-from agents import atlas, base, cora, fira, tara, aria  # noqa: F401
+from agents import atlas, base, cora, fira, tara, aria, orion  # noqa: F401

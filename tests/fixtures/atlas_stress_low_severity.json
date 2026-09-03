@@ -1,0 +1,16 @@
+[
+  {
+    "content": "Running a mild liquidity stress test.",
+    "stop_reason": "tool_use",
+    "tool_calls": [
+      { "id": "t1", "name": "run_liquidity_stress", "input": { "outflow_shock_pct": "0.05" } }
+    ],
+    "usage": { "input_tokens": 380, "output_tokens": 35 }
+  },
+  {
+    "content": "Under a 5% outflow shock, LCR stays comfortably above 120% at LOW severity. No action required.",
+    "stop_reason": "end_turn",
+    "tool_calls": [],
+    "usage": { "input_tokens": 440, "output_tokens": 35 }
+  }
+]

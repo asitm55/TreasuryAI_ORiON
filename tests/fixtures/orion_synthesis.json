@@ -1,0 +1,8 @@
+[
+  {
+    "content": "Treasury position is healthy overall. See the specialist findings above for detail.",
+    "stop_reason": "end_turn",
+    "tool_calls": [],
+    "usage": { "input_tokens": 300, "output_tokens": 30 }
+  }
+]
