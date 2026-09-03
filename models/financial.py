@@ -111,6 +111,10 @@ class CounterpartyRisk(TreasuryBaseModel):
     gross_exposure: ExactDecimal = Field(ge=0)
     net_exposure: ExactDecimal
     credit_rating: CreditRating
+    # Optional: exposure is often reported per-currency rather than blended
+    # (no FX spot-rate table backs this project — see tools/risk.py). None
+    # for a single-currency or already-converted figure.
+    currency: CurrencyCode | None = None
 
 
 class RiskSummary(TreasuryBaseModel):

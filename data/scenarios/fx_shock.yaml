@@ -27,6 +27,10 @@ hqla: "52500000"
 net_cash_outflows_30d: "37500000"
 available_stable_funding: "40000000"
 required_stable_funding: "33700000"
+annual_revenue: "180000000"
+annual_cogs: "126000000"
+accounts_receivable: "24000000"
+accounts_payable: "14000000"
 
 cash_positions:
   HoldCo:

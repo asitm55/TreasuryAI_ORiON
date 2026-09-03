@@ -29,6 +29,17 @@ net_cash_outflows_30d: "37500000"
 available_stable_funding: "40000000"
 required_stable_funding: "33700000"
 
+# Inputs to tools/cash_flow.py: calculate_working_capital_metrics.
+# DSO = 24,000,000 / 180,000,000 * 365 = 48.67 days
+# DPO = 14,000,000 / 126,000,000 * 365 = 40.56 days
+# CCC = DSO - DPO = 8.11 days (no inventory/DIO modelled - this is a
+#   treasury/holding group, not a manufacturer)
+# days_cash_on_hand = hqla / (annual_cogs / 365) = 52,500,000 / 345,205.48 = 152.1 days
+annual_revenue: "180000000"
+annual_cogs: "126000000"
+accounts_receivable: "24000000"
+accounts_payable: "14000000"
+
 cash_positions:
   HoldCo:
     - currency: USD

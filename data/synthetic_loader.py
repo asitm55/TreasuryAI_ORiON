@@ -14,6 +14,12 @@ run-off rates and haircuts are themselves calibration parameters, not
 something this project derives bottom-up from position-level data — so the
 scenario file states them directly, decoupled from the granular cash /
 investment / payment data that feeds the other tools (cash flow, FX, risk).
+
+annual_revenue / annual_cogs / accounts_receivable / accounts_payable were
+added in Phase 3 for the same reason: tools/cash_flow.py's
+calculate_working_capital_metrics needs DSO/DPO/CCC inputs that no amount of
+position-level data derives (this synthetic treasury has no AR/AP ledger or
+income statement), so they're stated directly as scenario-level scalars too.
 """
 
 from __future__ import annotations
@@ -122,6 +128,10 @@ class TreasurySnapshot:
     net_cash_outflows_30d: Decimal
     available_stable_funding: Decimal
     required_stable_funding: Decimal
+    annual_revenue: Decimal
+    annual_cogs: Decimal
+    accounts_receivable: Decimal
+    accounts_payable: Decimal
 
     cash_positions: dict[str, tuple[CashPosition, ...]]
     investment_positions: tuple[InvestmentPosition, ...]
@@ -159,7 +169,9 @@ class SyntheticDataLoader:
         required_keys = {
             "scenario", "description", "entities", "currencies",
             "hqla", "net_cash_outflows_30d", "available_stable_funding",
-            "required_stable_funding", "cash_positions", "investment_positions",
+            "required_stable_funding", "annual_revenue", "annual_cogs",
+            "accounts_receivable", "accounts_payable",
+            "cash_positions", "investment_positions",
             "fx_positions", "payment_schedule", "counterparties", "rate_curve",
         }
         missing = required_keys - raw.keys()
@@ -183,6 +195,10 @@ class SyntheticDataLoader:
             net_cash_outflows_30d=Decimal(str(raw["net_cash_outflows_30d"])),
             available_stable_funding=Decimal(str(raw["available_stable_funding"])),
             required_stable_funding=Decimal(str(raw["required_stable_funding"])),
+            annual_revenue=Decimal(str(raw["annual_revenue"])),
+            annual_cogs=Decimal(str(raw["annual_cogs"])),
+            accounts_receivable=Decimal(str(raw["accounts_receivable"])),
+            accounts_payable=Decimal(str(raw["accounts_payable"])),
             cash_positions=cash_positions,
             investment_positions=_build_model_list(raw["investment_positions"], InvestmentPosition, "investment_positions", name),
             fx_positions=_build_model_list(raw["fx_positions"], FXBookEntry, "fx_positions", name),
