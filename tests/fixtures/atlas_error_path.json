@@ -1,0 +1,10 @@
+[
+  {
+    "content": "Checking the LCR.",
+    "stop_reason": "tool_use",
+    "tool_calls": [
+      { "id": "t1", "name": "calculate_lcr", "input": { "hqla": "52500000", "net_cash_outflows_30d": "0" } }
+    ],
+    "usage": { "input_tokens": 300, "output_tokens": 30 }
+  }
+]

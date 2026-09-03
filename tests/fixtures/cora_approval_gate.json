@@ -1,0 +1,33 @@
+[
+  {
+    "content": "Checking for sweep opportunities across accounts.",
+    "stop_reason": "tool_use",
+    "tool_calls": [
+      { "id": "t1", "name": "calculate_sweep_opportunity", "input": {} }
+    ],
+    "usage": { "input_tokens": 350, "output_tokens": 35 }
+  },
+  {
+    "content": "Found an idle balance worth sweeping.",
+    "stop_reason": "tool_use",
+    "tool_calls": [
+      {
+        "id": "t2",
+        "name": "submit_recommendation",
+        "input": {
+          "action": "Sweep excess USD balances from OPB-USD-01 into HOLD-USD-01",
+          "rationale": "Balance sits above the operating buffer with no near-term use",
+          "estimated_impact": "Improves consolidated cash concentration",
+          "requires_approval": true
+        }
+      }
+    ],
+    "usage": { "input_tokens": 420, "output_tokens": 40 }
+  },
+  {
+    "content": "Recommending a cash sweep to concentrate idle balances.",
+    "stop_reason": "end_turn",
+    "tool_calls": [],
+    "usage": { "input_tokens": 460, "output_tokens": 30 }
+  }
+]

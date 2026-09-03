@@ -1,0 +1,23 @@
+[
+  {
+    "content": "Ranking the open priority issues by severity.",
+    "stop_reason": "tool_use",
+    "tool_calls": [
+      {
+        "id": "t1",
+        "name": "rank_priorities",
+        "input": {
+          "issues": ["LCR near breach", "FX unhedged", "Minor DPO miss"],
+          "weights": { "LCR near breach": "90", "FX unhedged": "60", "Minor DPO miss": "20" }
+        }
+      }
+    ],
+    "usage": { "input_tokens": 380, "output_tokens": 40 }
+  },
+  {
+    "content": "The LCR near-breach flagged by ATLAS is the top priority this period, followed by the unhedged FX exposure TARA raised.",
+    "stop_reason": "end_turn",
+    "tool_calls": [],
+    "usage": { "input_tokens": 440, "output_tokens": 35 }
+  }
+]

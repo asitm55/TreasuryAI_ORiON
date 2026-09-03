@@ -1,0 +1,10 @@
+[
+  {
+    "content": "Evaluating alert rules.",
+    "stop_reason": "tool_use",
+    "tool_calls": [
+      { "id": "t1", "name": "evaluate_alert_rules", "input": { "metrics": {} } }
+    ],
+    "usage": { "input_tokens": 300, "output_tokens": 30 }
+  }
+]

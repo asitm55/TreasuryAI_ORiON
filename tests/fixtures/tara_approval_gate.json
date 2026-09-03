@@ -1,0 +1,33 @@
+[
+  {
+    "content": "Checking FX exposure for hedging opportunities.",
+    "stop_reason": "tool_use",
+    "tool_calls": [
+      { "id": "t1", "name": "calculate_fx_exposure", "input": {} }
+    ],
+    "usage": { "input_tokens": 400, "output_tokens": 40 }
+  },
+  {
+    "content": "GBP/USD exposure is only partially hedged.",
+    "stop_reason": "tool_use",
+    "tool_calls": [
+      {
+        "id": "t2",
+        "name": "submit_recommendation",
+        "input": {
+          "action": "Consider increasing the GBP/USD hedge ratio",
+          "rationale": "Current hedge ratio leaves material unhedged exposure",
+          "estimated_impact": "Reduces FX P&L volatility",
+          "requires_approval": true
+        }
+      }
+    ],
+    "usage": { "input_tokens": 460, "output_tokens": 50 }
+  },
+  {
+    "content": "Recommending an increased hedge ratio on GBP/USD, subject to approval.",
+    "stop_reason": "end_turn",
+    "tool_calls": [],
+    "usage": { "input_tokens": 500, "output_tokens": 30 }
+  }
+]

@@ -10,12 +10,19 @@ list/dict of typed domain objects like list[InvestmentPosition]) are left out
 of the generated schema — those are always supplied by the calling agent
 code from already-loaded data, never chosen by the LLM itself, so they have
 no business appearing as something the model can invent values for.
+
+Every tools/*.py module uses `from __future__ import annotations` (PEP 563),
+which stringifies all type hints at runtime — inspect.signature(...).annotation
+would hand back the literal string "Decimal", not the Decimal class. Both
+schema generation and dispatch()'s input coercion resolve real types via
+typing.get_type_hints() rather than raw Parameter.annotation.
 """
 
 from __future__ import annotations
 
 import inspect
 import types
+import typing
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
@@ -77,11 +84,51 @@ def _json_schema_for(annotation: Any) -> dict[str, Any] | None:
     return None
 
 
-def _describe_param(name: str, param: inspect.Parameter) -> dict[str, Any] | None:
-    schema = _json_schema_for(param.annotation)
-    if schema is None:
-        return None
-    return schema
+def _coerce_value(value: Any, annotation: Any) -> Any:
+    """Reverse of _json_schema_for: convert a JSON-ish value (as an LLM tool
+    call, or MockLLMClient fixture, would supply it) back into the Python
+    type the target function actually expects — e.g. the string "37500000"
+    back into Decimal("37500000"). Without this, a tool call built from a
+    JSON schema would hand a plain str straight to code doing arithmetic on
+    it.
+    """
+    if annotation is inspect.Parameter.empty or value is None:
+        return value
+
+    annotation, _ = _unwrap_optional(annotation)
+
+    if annotation is Decimal:
+        return value if isinstance(value, Decimal) else Decimal(str(value))
+    if annotation is date:
+        return date.fromisoformat(value) if isinstance(value, str) else value
+    if annotation is datetime:
+        return datetime.fromisoformat(value) if isinstance(value, str) else value
+    if isinstance(annotation, type) and issubclass(annotation, Enum):
+        return value if isinstance(value, annotation) else annotation(value)
+
+    origin = get_origin(annotation)
+    if origin is list and isinstance(value, (list, tuple)):
+        args = get_args(annotation)
+        item_type = args[0] if args else inspect.Parameter.empty
+        return [_coerce_value(v, item_type) for v in value]
+    if origin is tuple and isinstance(value, (list, tuple)):
+        args = get_args(annotation)
+        if args and len(args) == len(value):
+            return tuple(_coerce_value(v, t) for v, t in zip(value, args))
+        return tuple(value)
+    if origin is dict and isinstance(value, dict):
+        args = get_args(annotation)
+        val_type = args[1] if len(args) > 1 else inspect.Parameter.empty
+        return {k: _coerce_value(v, val_type) for k, v in value.items()}
+
+    return value
+
+
+def _resolved_hints(func: Callable[..., Any]) -> dict[str, Any]:
+    try:
+        return typing.get_type_hints(func)
+    except Exception:
+        return {}
 
 
 class ToolRegistry:
@@ -95,18 +142,25 @@ class ToolRegistry:
     def list_tools(self) -> list[str]:
         return sorted(self._tools.keys())
 
+    def get_tool(self, name: str) -> Callable[..., Any]:
+        if name not in self._tools:
+            raise ToolNotFoundError(name, self.list_tools())
+        return self._tools[name]
+
     def get_tool_schema(self, name: str) -> dict[str, Any]:
         if name not in self._tools:
             raise ToolNotFoundError(name, self.list_tools())
         func = self._tools[name]
         signature = inspect.signature(func)
+        hints = _resolved_hints(func)
 
         properties: dict[str, Any] = {}
         required: list[str] = []
         for param_name, param in signature.parameters.items():
             if param.kind in (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD):
                 continue
-            schema = _describe_param(param_name, param)
+            annotation = hints.get(param_name, param.annotation)
+            schema = _json_schema_for(annotation)
             if schema is None:
                 continue
             properties[param_name] = schema
@@ -128,7 +182,14 @@ class ToolRegistry:
     def dispatch(self, name: str, kwargs: dict[str, Any]) -> Any:
         if name not in self._tools:
             raise ToolNotFoundError(name, self.list_tools())
-        return self._tools[name](**kwargs)
+        func = self._tools[name]
+        signature = inspect.signature(func)
+        hints = _resolved_hints(func)
+        coerced = {
+            key: _coerce_value(value, hints.get(key, signature.parameters[key].annotation)) if key in signature.parameters else value
+            for key, value in kwargs.items()
+        }
+        return func(**coerced)
 
 
 default_registry = ToolRegistry()

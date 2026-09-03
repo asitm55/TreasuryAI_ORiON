@@ -1,0 +1,17 @@
+[
+  {
+    "content": "Let me check the current liquidity ratios.",
+    "stop_reason": "tool_use",
+    "tool_calls": [
+      { "id": "t1", "name": "calculate_lcr", "input": { "hqla": "52500000", "net_cash_outflows_30d": "37500000" } },
+      { "id": "t2", "name": "calculate_nsfr", "input": { "available_stable_funding": "40000000", "required_stable_funding": "33700000" } }
+    ],
+    "usage": { "input_tokens": 400, "output_tokens": 60 }
+  },
+  {
+    "content": "LCR is 140.0% and NSFR is 118.7%, both comfortably above the 100% regulatory minimum. No action required.",
+    "stop_reason": "end_turn",
+    "tool_calls": [],
+    "usage": { "input_tokens": 480, "output_tokens": 40 }
+  }
+]

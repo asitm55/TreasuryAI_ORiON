@@ -1,0 +1,25 @@
+[
+  {
+    "content": "Checking FX exposure and VaR.",
+    "stop_reason": "tool_use",
+    "tool_calls": [
+      { "id": "t1", "name": "calculate_fx_exposure", "input": {} },
+      {
+        "id": "t2",
+        "name": "calculate_var",
+        "input": {
+          "returns": ["-80000", "-50000", "-20000", "-10000", "5000", "10000", "15000", "20000", "25000", "30000"],
+          "confidence": "0.95",
+          "horizon_days": 1
+        }
+      }
+    ],
+    "usage": { "input_tokens": 450, "output_tokens": 60 }
+  },
+  {
+    "content": "FX book is moderately hedged, no material unhedged exposure. 1-day VaR at 95% confidence is $80,000. No action required.",
+    "stop_reason": "end_turn",
+    "tool_calls": [],
+    "usage": { "input_tokens": 520, "output_tokens": 45 }
+  }
+]

@@ -1,0 +1,10 @@
+[
+  {
+    "content": "Checking hedge effectiveness.",
+    "stop_reason": "tool_use",
+    "tool_calls": [
+      { "id": "t1", "name": "calculate_hedge_effectiveness", "input": { "hedged": "-1", "unhedged": "100" } }
+    ],
+    "usage": { "input_tokens": 300, "output_tokens": 30 }
+  }
+]

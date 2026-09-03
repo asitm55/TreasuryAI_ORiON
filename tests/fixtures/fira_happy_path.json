@@ -1,0 +1,25 @@
+[
+  {
+    "content": "Scoring this period's KPIs against target.",
+    "stop_reason": "tool_use",
+    "tool_calls": [
+      {
+        "id": "t1",
+        "name": "calculate_kpi_scores",
+        "input": { "metrics": { "dpo": "40.5", "dso": "48.7" }, "targets": { "dpo": "45", "dso": "45" } }
+      },
+      {
+        "id": "t2",
+        "name": "benchmark_metrics",
+        "input": { "metric_name": "dso", "entity_value": "48.7", "peer_values": ["38", "42", "50", "55"] }
+      }
+    ],
+    "usage": { "input_tokens": 400, "output_tokens": 55 }
+  },
+  {
+    "content": "DSO of 48.7 days sits above target but within the peer range. DPO is trailing target slightly. Overall performance is broadly healthy this period.",
+    "stop_reason": "end_turn",
+    "tool_calls": [],
+    "usage": { "input_tokens": 480, "output_tokens": 45 }
+  }
+]

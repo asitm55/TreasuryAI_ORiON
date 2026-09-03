@@ -1,0 +1,14 @@
+[
+  {
+    "content": "Scoring KPIs.",
+    "stop_reason": "tool_use",
+    "tool_calls": [
+      {
+        "id": "t1",
+        "name": "calculate_kpi_scores",
+        "input": { "metrics": { "dso": "48.7" }, "targets": {} }
+      }
+    ],
+    "usage": { "input_tokens": 300, "output_tokens": 30 }
+  }
+]

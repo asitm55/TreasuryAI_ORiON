@@ -1,0 +1,18 @@
+[
+  {
+    "content": "Let me pull the 30-day forecast, net cash position, and working capital metrics.",
+    "stop_reason": "tool_use",
+    "tool_calls": [
+      { "id": "t1", "name": "get_cash_flow_forecast", "input": { "horizon_days": 30 } },
+      { "id": "t2", "name": "calculate_net_cash_position", "input": {} },
+      { "id": "t3", "name": "calculate_working_capital_metrics", "input": {} }
+    ],
+    "usage": { "input_tokens": 400, "output_tokens": 60 }
+  },
+  {
+    "content": "Net USD cash position is $16.45M with a positive 30-day forecast. DSO is running above DPO but within normal range. No action required.",
+    "stop_reason": "end_turn",
+    "tool_calls": [],
+    "usage": { "input_tokens": 500, "output_tokens": 45 }
+  }
+]

@@ -1,11 +1,11 @@
 """Tests for core/tool_registry.py."""
 
+from datetime import date, datetime
 from decimal import Decimal
+from enum import Enum
 from typing import Optional
 
 import pytest
-
-from enum import Enum
 
 from core.tool_registry import ToolNotFoundError, ToolRegistry
 
@@ -172,6 +172,136 @@ def test_module_level_tool_get_tool_schema_and_dispatch_use_default_registry():
     schema = reg_module.get_tool_schema("module_level_add")
     assert schema["name"] == "module_level_add"
     assert reg_module.dispatch("module_level_add", {"a": 4, "b": 6}) == 10
+
+
+def test_dispatch_coerces_string_to_decimal(registry):
+    def f(amount: Decimal) -> Decimal:
+        return amount * 2
+
+    registry.register(f)
+    assert registry.dispatch("f", {"amount": "1.50"}) == Decimal("3.00")
+
+
+def test_dispatch_coerces_iso_strings_to_date_and_datetime(registry):
+    def f(as_of_date: date, as_of_datetime: datetime) -> tuple:
+        return as_of_date, as_of_datetime
+
+    registry.register(f)
+    result = registry.dispatch("f", {"as_of_date": "2026-09-03", "as_of_datetime": "2026-09-03T12:00:00+00:00"})
+    assert result == (date(2026, 9, 3), datetime.fromisoformat("2026-09-03T12:00:00+00:00"))
+
+
+def test_dispatch_coerces_string_to_enum(registry):
+    class Direction(str, Enum):
+        UP = "UP"
+        DOWN = "DOWN"
+
+    def f(direction: Direction) -> Direction:
+        return direction
+
+    registry.register(f)
+    result = registry.dispatch("f", {"direction": "UP"})
+    assert result is Direction.UP
+
+
+def test_dispatch_coerces_list_of_decimal(registry):
+    def f(values: list[Decimal]) -> Decimal:
+        return sum(values, Decimal("0"))
+
+    registry.register(f)
+    assert registry.dispatch("f", {"values": ["1.5", "2.5"]}) == Decimal("4.0")
+
+
+def test_dispatch_coerces_heterogeneous_tuple(registry):
+    def f(pair: tuple[date, Decimal]) -> tuple:
+        return pair
+
+    registry.register(f)
+    result = registry.dispatch("f", {"pair": ["2026-09-03", "1.5"]})
+    assert result == (date(2026, 9, 3), Decimal("1.5"))
+
+
+def test_dispatch_leaves_tuple_alone_when_arg_count_mismatches(registry):
+    def f(pair: tuple[date, Decimal]) -> tuple:
+        return pair
+
+    registry.register(f)
+    # 3 raw values against a 2-type-arg tuple annotation: can't zip meaningfully.
+    result = registry.dispatch("f", {"pair": ["2026-09-03", "1.5", "extra"]})
+    assert result == ("2026-09-03", "1.5", "extra")
+
+
+def test_resolved_hints_tolerates_unresolvable_annotation(registry):
+    # A annotation referencing a name that doesn't exist in the function's
+    # module globals makes typing.get_type_hints() raise; schema generation
+    # should degrade gracefully (empty schema) rather than crash.
+    ns: dict = {}
+    exec("from __future__ import annotations\ndef f(x: DoesNotExist): pass", ns)
+    registry.register(ns["f"])
+    schema = registry.get_tool_schema("f")
+    assert schema["input_schema"]["properties"] == {}
+
+
+def test_dispatch_coerces_dict_values(registry):
+    def f(metrics: dict[str, Decimal]) -> Decimal:
+        return sum(metrics.values(), Decimal("0"))
+
+    registry.register(f)
+    assert registry.dispatch("f", {"metrics": {"a": "1.5", "b": "2.5"}}) == Decimal("4.0")
+
+
+def test_dispatch_leaves_untyped_and_none_values_alone(registry):
+    def f(a, b: Optional[Decimal] = None) -> tuple:
+        return a, b
+
+    registry.register(f)
+    assert registry.dispatch("f", {"a": "raw", "b": None}) == ("raw", None)
+
+
+def test_dispatch_leaves_already_correct_types_alone(registry):
+    def f(amount: Decimal, as_of: date) -> tuple:
+        return amount, as_of
+
+    registry.register(f)
+    result = registry.dispatch("f", {"amount": Decimal("5"), "as_of": date(2026, 1, 1)})
+    assert result == (Decimal("5"), date(2026, 1, 1))
+
+
+def test_dispatch_ignores_kwarg_not_in_signature(registry):
+    def f(**kwargs) -> dict:
+        return kwargs
+
+    registry.register(f)
+    # 'extra' isn't a named parameter (absorbed by **kwargs), so it's passed through unmodified.
+    assert registry.dispatch("f", {"extra": "1.5"}) == {"extra": "1.5"}
+
+
+def test_schema_and_dispatch_work_with_future_annotations_module(registry):
+    """Reproduces the real bug: tools/*.py uses `from __future__ import
+    annotations`, which stringifies annotations. A function imported from
+    such a module must still get a correct schema and coercion.
+    """
+    import tools.liquidity as liquidity_module
+
+    registry.register(liquidity_module.calculate_lcr, name="calculate_lcr")
+    schema = registry.get_tool_schema("calculate_lcr")
+    assert schema["input_schema"]["properties"]["hqla"]["type"] == "string"
+
+    result = registry.dispatch("calculate_lcr", {"hqla": "52500000", "net_cash_outflows_30d": "37500000"})
+    assert result.ratio == Decimal("1.4")
+
+
+def test_get_tool_returns_the_raw_function(registry):
+    def f(x: int) -> int:
+        return x
+
+    registry.register(f)
+    assert registry.get_tool("f") is f
+
+
+def test_get_tool_unknown_raises(registry):
+    with pytest.raises(ToolNotFoundError):
+        registry.get_tool("does_not_exist")
 
 
 def test_list_tools_is_sorted(registry):
