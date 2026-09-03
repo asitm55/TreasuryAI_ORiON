@@ -23,12 +23,14 @@ cp .env.example .env
 ## Run
 
 ```bash
-# Interactive CLI
+# Interactive CLI (or `python main.py <command>` for a one-shot run)
 python main.py
 
-# Scripted end-to-end demo (once implemented, see Phase 7)
+# Scripted end-to-end demo: all 5 workflows in sequence
 python scripts/demo.py --scenario liquidity_stress
 ```
+
+Commands: `brief`, `stress-test`, `risk-review`, `alerts`, `ask <question>`, `quit`.
 
 ## Test
 
@@ -38,12 +40,14 @@ pytest tests/ --cov
 
 ## Project status
 
-Phases 0-6 complete (scaffolding, data models, synthetic data layer, all 32
+Phases 0-7 complete (scaffolding, data models, synthetic data layer, all 32
 financial tools + tool registry, LLM client + audit logger, all five
-specialist agents, and the ORION orchestrator). Only the CLI/demo (Phase 7)
-and final polish (Phase 8) remain — see [phases/](phases/) for a per-phase
-writeup of what was built and why, and `pytest tests/ --cov` for current
-test coverage (300 tests, 100% project-wide).
+specialist agents, the ORION orchestrator, and the CLI + demo script). Only
+final polish/documentation (Phase 8) remains — see [phases/](phases/) for a
+per-phase writeup of what was built and why, and `pytest tests/ --cov` for
+current test coverage (335 tests, 99% project-wide — the only gap is two
+`if __name__ == "__main__":` guards exercised by subprocess tests but not
+tracked by in-process coverage).
 
 ## Layout
 

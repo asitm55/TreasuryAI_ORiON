@@ -15,7 +15,7 @@ from typing import Any
 
 import tools.alerts  # noqa: F401 - registers this agent's tools on import
 from agents.base import BaseAgent
-from core.llm_client import LLMResponse
+from core.llm_client import LLMResponse, ToolCallRequest
 from models.financial import AlertSeverity, TriageRequest
 from models.requests import AgentRequest
 from models.responses import AriaResponse, ResponseStatus
@@ -57,6 +57,41 @@ class AriaAgent(BaseAgent):
     tool_injections = {
         "classify_alert_severity": {"breach": lambda agent, results: agent._last(results, "check_threshold")},
     }
+
+    def _build_context(self, request: AgentRequest, tool_results: dict[str, list[Any]]) -> str | None:
+        """ARIA's tools take metric values as input rather than computing
+        them (evaluate_alert_rules(metrics, ...)) — a real LLM has no other
+        way to know the current LCR/NSFR. Rather than have the model guess,
+        ARIA computes them itself before asking anything, via the exact
+        same registered tools (calculate_lcr/calculate_nsfr) any other
+        agent would use — so these calls are logged as real TOOL_CALL/
+        TOOL_RESULT audit entries, not silently computed outside the trail.
+        """
+        calls = [
+            ToolCallRequest(
+                id="ctx-lcr", name="calculate_lcr",
+                input={"hqla": str(self.snapshot.hqla), "net_cash_outflows_30d": str(self.snapshot.net_cash_outflows_30d)},
+            ),
+            ToolCallRequest(
+                id="ctx-nsfr", name="calculate_nsfr",
+                input={
+                    "available_stable_funding": str(self.snapshot.available_stable_funding),
+                    "required_stable_funding": str(self.snapshot.required_stable_funding),
+                },
+            ),
+        ]
+        outcomes = self._dispatch_all(request, calls, tool_results)
+        if any(o.error is not None for o in outcomes):
+            return "Could not pre-compute current LCR/NSFR; ask the operator for current metric values."
+
+        lcr_result = tool_results["calculate_lcr"][-1]
+        nsfr_result = tool_results["calculate_nsfr"][-1]
+        return (
+            f"Current metrics for {self.snapshot.scenario_name}: lcr={lcr_result.ratio}, nsfr={nsfr_result.ratio}. "
+            "Call evaluate_alert_rules with a metrics dict containing at least lcr and nsfr; add other keys "
+            "(unhedged_fx_exposure, dv01, net_cash_position, forecast_deficit_7d, counterparty_concentration) "
+            "only if the operator has supplied them."
+        )
 
     def _build_response(
         self, request: AgentRequest, llm_response: LLMResponse, reasoning: str, tool_results: dict[str, list[Any]]

@@ -102,8 +102,10 @@ class BaseAgent(ABC):
         return [self.registry.get_tool_schema(name) for name in self.tool_names]
 
     def run(self, request: AgentRequest) -> AgentResponse:
-        messages: list[dict[str, Any]] = [{"role": "user", "content": request.user_query}]
         tool_results: dict[str, list[Any]] = {}
+        context = self._build_context(request, tool_results)
+        initial_content = f"{context}\n\n{request.user_query}" if context else request.user_query
+        messages: list[dict[str, Any]] = [{"role": "user", "content": initial_content}]
         reasoning_parts: list[str] = []
 
         for _ in range(MAX_TOOL_ITERATIONS):
@@ -191,6 +193,21 @@ class BaseAgent(ABC):
                 payload=payload,
             )
         )
+
+    def _build_context(self, request: AgentRequest, tool_results: dict[str, list[Any]]) -> str | None:
+        """Optional text prepended to the first user message, ahead of
+        request.user_query. A real LLM has no other way to learn the
+        current snapshot's figures — MockLLMClient-driven tests don't need
+        this (fixtures script the tool calls directly), but without it the
+        CLI (Phase 7), talking to a real model, would have nothing to work
+        from. Override to describe relevant data or to seed tool_results
+        with real, audited tool calls the agent makes on its own before
+        asking the LLM anything (see AriaAgent for an example of the
+        latter — it dispatches calculate_lcr/calculate_nsfr itself via
+        self._dispatch_all(), so those calls are logged exactly like any
+        other, not silently computed outside the audit trail).
+        """
+        return None
 
     def _error_response(self, request: AgentRequest, error_message: str) -> AgentResponse:
         response = AgentResponse(

@@ -6,6 +6,8 @@ check_threshold -> classify_alert_severity chaining (breach injection)
 works correctly instead of an approval-gate test.
 """
 
+import dataclasses
+from decimal import Decimal
 from pathlib import Path
 
 import pytest
@@ -49,8 +51,26 @@ def test_happy_path_populates_response_and_writes_audit_log(snapshot, request_, 
 
     entries = agent.audit_logger.read_session("sess-aria-1")
     event_types = [e.event_type.value for e in entries]
-    assert event_types.count("TOOL_CALL") == 1
+    # 2 context calls (calculate_lcr, calculate_nsfr, self-dispatched before
+    # asking the LLM anything - see AriaAgent._build_context) + 1 from the
+    # scripted evaluate_alert_rules call.
+    assert event_types.count("TOOL_CALL") == 3
     assert event_types.count("AGENT_RESPONSE") == 1
+
+    tool_calls = [e for e in entries if e.event_type.value == "TOOL_CALL"]
+    assert tool_calls[0].payload["tool_name"] == "calculate_lcr"
+    assert tool_calls[1].payload["tool_name"] == "calculate_nsfr"
+
+
+def test_context_build_failure_falls_back_gracefully(snapshot, request_, tmp_path):
+    # net_cash_outflows_30d=0 makes ARIA's own context-gathering
+    # calculate_lcr call raise ToolError; the agent should still proceed
+    # (with a fallback context note) rather than crash before ever asking
+    # the LLM anything.
+    broken_snapshot = dataclasses.replace(snapshot, net_cash_outflows_30d=Decimal("0"))
+    agent = _agent("aria_happy_path.json", broken_snapshot, tmp_path)
+    response = agent.run(request_)
+    assert response.status == ResponseStatus.COMPLETE
 
 
 def test_error_path_returns_error_status_and_logs_failure(snapshot, request_, tmp_path):
@@ -68,7 +88,8 @@ def test_classify_alert_severity_chains_from_prior_check_threshold(snapshot, req
     assert response.status == ResponseStatus.COMPLETE
     entries = agent.audit_logger.read_session("sess-aria-1")
     tool_results = [e for e in entries if e.event_type.value == "TOOL_RESULT"]
-    assert len(tool_results) == 2
+    # 2 context calls (calculate_lcr, calculate_nsfr) + check_threshold + classify_alert_severity.
+    assert len(tool_results) == 4
     # classify_alert_severity's injected `breach` was the check_threshold
     # result: value=12M > threshold=10M is a 20% breach -> MEDIUM.
-    assert tool_results[1].payload["output"] == "MEDIUM"
+    assert tool_results[-1].payload["output"] == "MEDIUM"

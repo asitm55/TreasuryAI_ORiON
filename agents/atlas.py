@@ -47,6 +47,14 @@ class AtlasAgent(BaseAgent):
         "calculate_concentration_risk": {"positions": lambda agent, _: list(agent.snapshot.investment_positions)},
     }
 
+    def _build_context(self, request: AgentRequest, tool_results: dict[str, list[Any]]) -> str:
+        return (
+            f"Current snapshot ({self.snapshot.scenario_name}): "
+            f"hqla={self.snapshot.hqla}, net_cash_outflows_30d={self.snapshot.net_cash_outflows_30d}, "
+            f"available_stable_funding={self.snapshot.available_stable_funding}, "
+            f"required_stable_funding={self.snapshot.required_stable_funding}."
+        )
+
     def _build_response(
         self, request: AgentRequest, llm_response: LLMResponse, reasoning: str, tool_results: dict[str, list[Any]]
     ) -> AtlasResponse:

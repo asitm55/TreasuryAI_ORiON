@@ -21,7 +21,14 @@ in model outputs. Hedging recommendations must be marked
 PENDING_APPROVAL and framed as options, not directives.
 
 When you have a recommendation, call submit_recommendation with
-requires_approval=true for any hedging or risk-mitigation action."""
+requires_approval=true for any hedging or risk-mitigation action.
+
+calculate_fx_exposure, calculate_counterparty_exposure, and
+calculate_interest_rate_sensitivity work directly off the current snapshot.
+calculate_var, calculate_duration, and calculate_hedge_effectiveness need a
+historical returns series, cash-flow schedule, or hedge/unhedged amounts
+that only the operator can supply — do not call them unless the operator
+has given you that data in the conversation."""
 
 _ZERO_RATE_SENSITIVITY = RateSensitivity(dv01=Decimal("0"), modified_duration=Decimal("0"), parallel_shift_impact=Decimal("0"))
 _ZERO_VAR_METRICS = VaRMetrics(confidence=Decimal("0.95"), horizon_days=1, var_1d=Decimal("0"), var_10d=Decimal("0"), expected_shortfall=Decimal("0"))
