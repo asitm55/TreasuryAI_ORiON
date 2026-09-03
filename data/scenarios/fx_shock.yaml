@@ -1,0 +1,397 @@
+# TreasuryAI synthetic scenario: fx_shock
+# Same liquidity position as base_case.yaml (unaffected — this scenario
+# targets the FX book, not funding), but with larger, largely unhedged
+# EUR/USD and GBP/USD exposure, plus an explicit shock assumption block
+# that Phase 3's run_scenario_analysis tool will apply.
+
+scenario: fx_shock
+description: >
+  EUR/USD moves -8%; GBP/USD moves -5%. EUR/USD exposure is $12M and
+  entirely unhedged, breaching the FX-001 alert rule (unhedged FX
+  exposure > $10M -> HIGH). Liquidity position is unchanged from base_case.
+
+entities:
+  - HoldCo
+  - OpCo A
+  - OpCo B
+
+currencies:
+  - USD
+  - EUR
+  - GBP
+  - JPY
+  - CHF
+
+# Unchanged from base_case: this scenario stresses the FX book, not funding.
+hqla: "52500000"
+net_cash_outflows_30d: "37500000"
+available_stable_funding: "40000000"
+required_stable_funding: "33700000"
+
+cash_positions:
+  HoldCo:
+    - currency: USD
+      amount: "8500000"
+      account_id: HOLD-USD-01
+      as_of: "2026-09-03T00:00:00Z"
+    - currency: EUR
+      amount: "2100000"
+      account_id: HOLD-EUR-01
+      as_of: "2026-09-03T00:00:00Z"
+  OpCo A:
+    - currency: USD
+      amount: "3200000"
+      account_id: OPA-USD-01
+      as_of: "2026-09-03T00:00:00Z"
+    - currency: GBP
+      amount: "950000"
+      account_id: OPA-GBP-01
+      as_of: "2026-09-03T00:00:00Z"
+  OpCo B:
+    - currency: USD
+      amount: "4750000"
+      account_id: OPB-USD-01
+      as_of: "2026-09-03T00:00:00Z"
+    - currency: JPY
+      amount: "180000000"
+      account_id: OPB-JPY-01
+      as_of: "2026-09-03T00:00:00Z"
+    - currency: CHF
+      amount: "600000"
+      account_id: OPB-CHF-01
+      as_of: "2026-09-03T00:00:00Z"
+
+investment_positions:
+  - instrument_id: INV-001
+    entity: HoldCo
+    instrument_type: US Treasury Bill
+    currency: USD
+    face_value: "5000000"
+    market_value: "4985000"
+    maturity_date: "2026-10-15"
+    coupon_rate: "0.0000"
+    counterparty_id: CP-001
+    hqla_eligible: true
+  - instrument_id: INV-002
+    entity: HoldCo
+    instrument_type: US Treasury Note
+    currency: USD
+    face_value: "3000000"
+    market_value: "3050000"
+    maturity_date: "2028-06-30"
+    coupon_rate: "0.0425"
+    counterparty_id: CP-001
+    hqla_eligible: true
+  - instrument_id: INV-003
+    entity: HoldCo
+    instrument_type: Money Market Fund
+    currency: USD
+    face_value: "2000000"
+    market_value: "2000000"
+    maturity_date: "2026-09-04"
+    coupon_rate: "0.0520"
+    counterparty_id: CP-002
+    hqla_eligible: true
+  - instrument_id: INV-004
+    entity: OpCo A
+    instrument_type: UK Gilt
+    currency: GBP
+    face_value: "1500000"
+    market_value: "1480000"
+    maturity_date: "2029-03-07"
+    coupon_rate: "0.0375"
+    counterparty_id: CP-003
+    hqla_eligible: true
+  - instrument_id: INV-005
+    entity: OpCo A
+    instrument_type: Corporate Bond - AA
+    currency: USD
+    face_value: "1000000"
+    market_value: "985000"
+    maturity_date: "2027-11-20"
+    coupon_rate: "0.0485"
+    counterparty_id: CP-004
+    hqla_eligible: false
+  - instrument_id: INV-006
+    entity: OpCo B
+    instrument_type: German Bund
+    currency: EUR
+    face_value: "2500000"
+    market_value: "2530000"
+    maturity_date: "2030-01-15"
+    coupon_rate: "0.0250"
+    counterparty_id: CP-005
+    hqla_eligible: true
+  - instrument_id: INV-007
+    entity: OpCo B
+    instrument_type: Commercial Paper
+    currency: JPY
+    face_value: "200000000"
+    market_value: "199500000"
+    maturity_date: "2026-11-01"
+    coupon_rate: "0.0010"
+    counterparty_id: CP-002
+    hqla_eligible: false
+  - instrument_id: INV-008
+    entity: HoldCo
+    instrument_type: Swiss Confederation Bond
+    currency: CHF
+    face_value: "800000"
+    market_value: "812000"
+    maturity_date: "2031-06-30"
+    coupon_rate: "0.0080"
+    counterparty_id: CP-005
+    hqla_eligible: true
+  - instrument_id: INV-009
+    entity: OpCo A
+    instrument_type: Corporate Bond - BBB
+    currency: USD
+    face_value: "750000"
+    market_value: "735000"
+    maturity_date: "2028-02-14"
+    coupon_rate: "0.0525"
+    counterparty_id: CP-004
+    hqla_eligible: false
+  - instrument_id: INV-010
+    entity: OpCo B
+    instrument_type: US Agency Bond
+    currency: USD
+    face_value: "1200000"
+    market_value: "1205000"
+    maturity_date: "2027-08-01"
+    coupon_rate: "0.0395"
+    counterparty_id: CP-001
+    hqla_eligible: true
+
+# Larger, largely unhedged EUR/USD and GBP/USD book vs. base_case.
+fx_positions:
+  - position_id: FX-P1
+    entity: HoldCo
+    currency_pair: EUR/USD
+    notional: "12000000"
+    direction: LONG
+    trade_date: "2026-08-01"
+    maturity_date: "2026-12-01"
+    hedge_designated: false
+  - position_id: FX-P2
+    entity: OpCo A
+    currency_pair: GBP/USD
+    notional: "6000000"
+    direction: LONG
+    trade_date: "2026-07-15"
+    maturity_date: "2026-10-15"
+    hedge_designated: false
+  - position_id: FX-P3
+    entity: OpCo B
+    currency_pair: USD/JPY
+    notional: "15000000"
+    direction: SHORT
+    trade_date: "2026-06-01"
+    maturity_date: "2026-09-30"
+    hedge_designated: false
+  - position_id: FX-P4
+    entity: OpCo B
+    currency_pair: USD/CHF
+    notional: "1000000"
+    direction: LONG
+    trade_date: "2026-08-10"
+    maturity_date: "2026-11-10"
+    hedge_designated: true
+
+payment_schedule:
+  - entity: HoldCo
+    date: "2026-09-05"
+    currency: USD
+    amount: "1200000"
+    direction: OUTFLOW
+    counterparty_id: CP-004
+    description: Payroll run
+  - entity: HoldCo
+    date: "2026-09-10"
+    currency: USD
+    amount: "3000000"
+    direction: INFLOW
+    counterparty_id: CP-001
+    description: Intercompany dividend from OpCo A
+  - entity: HoldCo
+    date: "2026-09-15"
+    currency: EUR
+    amount: "500000"
+    direction: OUTFLOW
+    counterparty_id: CP-005
+    description: Supplier settlement - European vendor
+  - entity: HoldCo
+    date: "2026-09-20"
+    currency: USD
+    amount: "800000"
+    direction: OUTFLOW
+    counterparty_id: CP-004
+    description: Payroll run
+  - entity: HoldCo
+    date: "2026-09-30"
+    currency: USD
+    amount: "2500000"
+    direction: INFLOW
+    counterparty_id: CP-002
+    description: Investment maturity proceeds
+  - entity: HoldCo
+    date: "2026-10-01"
+    currency: EUR
+    amount: "300000"
+    direction: INFLOW
+    counterparty_id: CP-005
+    description: Coupon receipt - German Bund
+  - entity: OpCo A
+    date: "2026-09-06"
+    currency: GBP
+    amount: "400000"
+    direction: OUTFLOW
+    counterparty_id: CP-003
+    description: Supplier settlement - UK vendor
+  - entity: OpCo A
+    date: "2026-09-12"
+    currency: USD
+    amount: "1500000"
+    direction: INFLOW
+    counterparty_id: CP-004
+    description: Customer receivable collection
+  - entity: OpCo A
+    date: "2026-09-18"
+    currency: USD
+    amount: "600000"
+    direction: OUTFLOW
+    counterparty_id: CP-004
+    description: Payroll run
+  - entity: OpCo A
+    date: "2026-09-25"
+    currency: GBP
+    amount: "250000"
+    direction: INFLOW
+    counterparty_id: CP-003
+    description: Customer receivable - UK client
+  - entity: OpCo A
+    date: "2026-10-02"
+    currency: USD
+    amount: "900000"
+    direction: OUTFLOW
+    counterparty_id: CP-001
+    description: Tax payment
+  - entity: OpCo B
+    date: "2026-09-07"
+    currency: JPY
+    amount: "45000000"
+    direction: OUTFLOW
+    counterparty_id: CP-002
+    description: Supplier settlement - Japan vendor
+  - entity: OpCo B
+    date: "2026-09-09"
+    currency: USD
+    amount: "500000"
+    direction: OUTFLOW
+    counterparty_id: CP-003
+    description: Insurance premium
+  - entity: OpCo B
+    date: "2026-09-14"
+    currency: USD
+    amount: "1100000"
+    direction: INFLOW
+    counterparty_id: CP-001
+    description: Customer receivable collection
+  - entity: OpCo B
+    date: "2026-09-21"
+    currency: CHF
+    amount: "150000"
+    direction: OUTFLOW
+    counterparty_id: CP-005
+    description: Equipment lease payment
+  - entity: OpCo B
+    date: "2026-09-28"
+    currency: JPY
+    amount: "30000000"
+    direction: INFLOW
+    counterparty_id: CP-002
+    description: Customer receivable - Japan client
+  - entity: OpCo B
+    date: "2026-09-29"
+    currency: USD
+    amount: "700000"
+    direction: OUTFLOW
+    counterparty_id: CP-004
+    description: Payroll run
+  - entity: OpCo B
+    date: "2026-10-01"
+    currency: USD
+    amount: "1300000"
+    direction: INFLOW
+    counterparty_id: CP-001
+    description: Intercompany settlement
+
+counterparties:
+  - counterparty_id: CP-001
+    name: Global Custody Bank N.A.
+    credit_rating: AA
+    sector: Banking
+    exposure_limit: "10000000"
+  - counterparty_id: CP-002
+    name: Meridian Money Market Fund
+    credit_rating: AAA
+    sector: Asset Management
+    exposure_limit: "8000000"
+  - counterparty_id: CP-003
+    name: Thames Clearing Bank plc
+    credit_rating: A+
+    sector: Banking
+    exposure_limit: "6000000"
+  - counterparty_id: CP-004
+    name: Continental Commercial Bank AG
+    credit_rating: A
+    sector: Banking
+    exposure_limit: "5000000"
+  - counterparty_id: CP-005
+    name: Alpine Sovereign Wealth Partners
+    credit_rating: AA-
+    sector: Sovereign/Institutional
+    exposure_limit: "7000000"
+
+rate_curve:
+  - { currency: USD, tenor: 1M, rate: "0.0525" }
+  - { currency: USD, tenor: 3M, rate: "0.0515" }
+  - { currency: USD, tenor: 6M, rate: "0.0495" }
+  - { currency: USD, tenor: 1Y, rate: "0.0460" }
+  - { currency: USD, tenor: 2Y, rate: "0.0420" }
+  - { currency: USD, tenor: 5Y, rate: "0.0400" }
+  - { currency: USD, tenor: 10Y, rate: "0.0415" }
+  - { currency: EUR, tenor: 1M, rate: "0.0365" }
+  - { currency: EUR, tenor: 3M, rate: "0.0355" }
+  - { currency: EUR, tenor: 6M, rate: "0.0340" }
+  - { currency: EUR, tenor: 1Y, rate: "0.0310" }
+  - { currency: EUR, tenor: 2Y, rate: "0.0285" }
+  - { currency: EUR, tenor: 5Y, rate: "0.0275" }
+  - { currency: EUR, tenor: 10Y, rate: "0.0290" }
+  - { currency: GBP, tenor: 1M, rate: "0.0485" }
+  - { currency: GBP, tenor: 3M, rate: "0.0475" }
+  - { currency: GBP, tenor: 6M, rate: "0.0455" }
+  - { currency: GBP, tenor: 1Y, rate: "0.0420" }
+  - { currency: GBP, tenor: 2Y, rate: "0.0395" }
+  - { currency: GBP, tenor: 5Y, rate: "0.0385" }
+  - { currency: GBP, tenor: 10Y, rate: "0.0400" }
+  - { currency: JPY, tenor: 1M, rate: "0.0015" }
+  - { currency: JPY, tenor: 3M, rate: "0.0020" }
+  - { currency: JPY, tenor: 6M, rate: "0.0025" }
+  - { currency: JPY, tenor: 1Y, rate: "0.0035" }
+  - { currency: JPY, tenor: 2Y, rate: "0.0055" }
+  - { currency: JPY, tenor: 5Y, rate: "0.0085" }
+  - { currency: JPY, tenor: 10Y, rate: "0.0120" }
+  - { currency: CHF, tenor: 1M, rate: "0.0090" }
+  - { currency: CHF, tenor: 3M, rate: "0.0095" }
+  - { currency: CHF, tenor: 6M, rate: "0.0100" }
+  - { currency: CHF, tenor: 1Y, rate: "0.0110" }
+  - { currency: CHF, tenor: 2Y, rate: "0.0120" }
+  - { currency: CHF, tenor: 5Y, rate: "0.0135" }
+  - { currency: CHF, tenor: 10Y, rate: "0.0155" }
+
+scenario_shocks:
+  - currency_pair: EUR/USD
+    shock_pct: "-0.08"
+  - currency_pair: GBP/USD
+    shock_pct: "-0.05"

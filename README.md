@@ -38,8 +38,10 @@ pytest tests/ --cov
 
 ## Project status
 
-Currently at **Phase 0 — Project Scaffolding**. The CLI runs but agent/tool logic
-is not yet implemented.
+Phases 0-2 complete (scaffolding, data models, synthetic data layer). Tool
+implementations and agents are not yet built — see [phases/](phases/) for a
+per-phase writeup of what was built and why, and `pytest tests/ --cov` for
+current test coverage (68 tests, 100% on `models/` and `data/`).
 
 ## Layout
 
