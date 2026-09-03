@@ -69,6 +69,14 @@ python scripts/demo.py --scenario liquidity_stress
 
 Commands: `brief`, `stress-test`, `risk-review`, `alerts`, `ask <question>`, `quit`.
 
+**No `ANTHROPIC_API_KEY` / don't want to spend anything?**
+`python scripts/demo_offline.py` runs the exact same orchestration — real
+tool execution, real audit log, real approval-gate flow, real Rich
+rendering — with the LLM replaced by scripted responses (the same
+`MockLLMClient` mechanism every automated test uses, ADR-011). It shows the
+full architecture working end-to-end; the one thing it can't show is live
+model reasoning, since that part is canned rather than generated.
+
 ## Test
 
 ```bash
