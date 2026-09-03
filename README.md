@@ -69,6 +69,24 @@ python scripts/demo.py --scenario liquidity_stress
 
 Commands: `brief`, `stress-test`, `risk-review`, `alerts`, `ask <question>`, `quit`.
 
+**Want a live, interactive demo in a browser** (e.g. for presenting the
+system to an audience)?
+
+```bash
+python scripts/web_ui.py --scenario base_case
+```
+
+Opens `http://127.0.0.1:8765` — a real-time chat UI wired to the exact same
+`TreasurySession` as the CLI: real specialist agents, real `tools/*.py`
+calls, real audit log, a real click-to-approve/reject flow for pending
+recommendations. Built entirely on Python's standard library
+(`http.server`) — no new dependency, honoring the project's original "no
+web framework" decision. Requires a real `ANTHROPIC_API_KEY`; without one
+it shows the same configuration error `main.py` does, in the chat window.
+This is a demo/presentation tool, not part of the audited application
+surface, so unlike `agents/`, `tools/`, `models/`, `core/`, and `data/` it
+has no automated test suite.
+
 **No `ANTHROPIC_API_KEY` / don't want to spend anything?**
 `python scripts/demo_offline.py` runs the exact same orchestration — real
 tool execution, real audit log, real approval-gate flow, real Rich
