@@ -1,0 +1,20 @@
+[
+  {
+    "content": "",
+    "stop_reason": "tool_use",
+    "tool_calls": [
+      {
+        "id": "toolu_01",
+        "name": "calculate_lcr",
+        "input": { "hqla": "52500000", "net_cash_outflows_30d": "37500000" }
+      }
+    ],
+    "usage": { "input_tokens": 512, "output_tokens": 64 }
+  },
+  {
+    "content": "LCR is 140.0%, comfortably above the 100% regulatory minimum.",
+    "stop_reason": "end_turn",
+    "tool_calls": [],
+    "usage": { "input_tokens": 612, "output_tokens": 32 }
+  }
+]

@@ -38,11 +38,11 @@ pytest tests/ --cov
 
 ## Project status
 
-Phases 0-3 complete (scaffolding, data models, synthetic data layer, and all
-32 financial tools + the tool registry). Agents and the orchestrator are not
-yet built — see [phases/](phases/) for a per-phase writeup of what was built
-and why, and `pytest tests/ --cov` for current test coverage (209 tests,
-100% project-wide).
+Phases 0-4 complete (scaffolding, data models, synthetic data layer, all 32
+financial tools + tool registry, and the LLM client + audit logger). Agents
+and the orchestrator are not yet built — see [phases/](phases/) for a
+per-phase writeup of what was built and why, and `pytest tests/ --cov` for
+current test coverage (227 tests, 100% project-wide).
 
 ## Layout
 
